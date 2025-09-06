@@ -39,25 +39,7 @@ magnet_discretization(M, rho_out_length, rho_inner_length, theta_length);
 %%% observation_surface(height, grid_num)
 grid_num = 2000;   % only in theta direction
 
-% create the surface
-[grid_rho_up, grid_rho_down, grid_theta, delta_h_rho, delta_h_theta] = ...
-    observation_surface(rho_out_length, obs_height_rho, grid_num);
-
-%% perform integral on each grid
-phi_rho_up = integral(grid_rho_up);
-phi_rho_down = integral(grid_rho_down);
-
-phi_theta = integral(grid_theta);
-
-%% obtain H: surface 1
-H_rho = -(phi_rho_up - phi_rho_down)/delta_h_rho;
-H_theta = -(1/grid_theta{1,1}(1))*diff(phi_theta,1,2)/delta_h_theta;
-
-% Hz_1 = -(phi_1_up - phi_1_down)/delta_h;
-% we need to convert back to real values
-H_rho_real = H_rho * M_star;
-H_theta_real = H_theta * M_star;
-% Hz_1_real = Hz_1 * M_star;
+%%%% Hidden codes, contact the author to unlock %%%%
 
 %% visiualization: results on surface 1
 % x-axis --> theta, range (0, 2*pi)
@@ -87,3 +69,4 @@ save H_real H_real
 
 %% for easier comparison...
 % H_real_reshape = reshape(H_real,grid_num*grid_num,[]);
+
