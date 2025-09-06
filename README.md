@@ -3,6 +3,8 @@ This project addresses the inverse magnetization problem of a simple circular Ha
 
 This is an application (extension) of the PINN framework proposed in [this paper](http://dx.doi.org/10.1049/elp2.70047). The PINN framework is almost unchanged, but with a different application scenario.
 
+**Note**: This is a project without a license. Contact the author at eegongzhi@zju.edu.cn to unlock the hidden codes.
+
 ## Problem setup
 The problem setup is briefly summarized below.
 
