@@ -40,6 +40,9 @@ magnet_discretization(M, rho_out_length, rho_inner_length, theta_length);
 grid_num = 2000;   % only in theta direction
 
 %%%% Hidden codes, contact the author to unlock %%%%
+%%                                                %%
+%%                                                %%
+%%%% Hidden codes, contact the author to unlock %%%%
 
 %% visiualization: results on surface 1
 % x-axis --> theta, range (0, 2*pi)
@@ -69,4 +72,5 @@ save H_real H_real
 
 %% for easier comparison...
 % H_real_reshape = reshape(H_real,grid_num*grid_num,[]);
+
 
