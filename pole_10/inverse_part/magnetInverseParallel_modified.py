@@ -80,23 +80,6 @@ def generate_points(num_rho, num_theta, rho_start, rho_out):
                     surface_ele[count + int(starter_negative)] = 1
                     count = count + 1
 
-    # # now, loop all elements (inner+boundary)
-    # count = 0
-    # for ind_theta in range(0, n_theta, 1):
-    #     for ind_rho in range(0, n_rho+2, 1):
-    #         if ind_rho == 0:
-    #             # line points: inner boundary
-    #             mag_coordinate[count, 0] = rho_start
-    #             mag_coordinate[count, 1] = 0.5 * d_theta + ind_theta * d_theta
-    #             rho_neg_ele[count] = 1
-    #             count = count + 1
-    #         elif ind_rho == n_rho+1:
-    #             # line points: outer boundary
-    #             mag_coordinate[count, 0] = rho_out
-    #             mag_coordinate[count, 1] = 0.5 * d_theta + ind_theta * d_theta
-    #             rho_pos_ele[count] = 1
-    #             count = count + 1
-
     rho_pos_ele = torch.from_numpy(rho_pos_ele).to(device)
     rho_neg_ele = torch.from_numpy(rho_neg_ele).to(device)
     surface_ele = torch.from_numpy(surface_ele).to(device)
@@ -347,4 +330,5 @@ ax.set_ylabel(r"H_rho")
 ax2.set_ylabel(r"H_theta")
 
 plt.show()
+
 
