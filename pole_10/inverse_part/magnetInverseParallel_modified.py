@@ -149,156 +149,13 @@ def func(x):
 
 
 def pde(x, y):
-    # M_rho --> y[:, 0], M_theta --> y[:, 1]
-    # rho --> x[:, 0], theta --> x[:, 1]
-    # use external parameters directly! like: test = front_element[1]
-    M_rho = torch.unsqueeze(y[:, 0], 1)
-    M_theta = torch.unsqueeze(y[:, 1], 1)
-    dMrdr = dde.grad.jacobian(y, x, i=0, j=0)
-    dMtdt = dde.grad.jacobian(y, x, i=1, j=1)
-
-    # test
-    # dMrdr = torch.zeros_like(dMrdr)
-    # dMtdt = torch.zeros_like(dMtdt)
-    # M_theta = torch.zeros_like(M_theta)
-    # M_rho = torch.ones_like(M_rho)
-
-    sum_difs = ((1 / x[:, 0:1]) * M_rho + dMrdr + (
-                1 / x[:, 0:1]) * dMtdt) * surface_element  # for convenience of volume integral
-
-    # region Integrals
-    # Integral on RhoDifPos_1 grid
-    # Surface integral (volume integral reduces to surface integral in 2D)
-    observePotentialRhoPos_1 = -torch.unsqueeze(
-        torch.sum(d_surface * sum_difs.div(observeRhoDifCoordPos_1_dis), 0), 1)
-    # Line integral
-    observePotentialRhoPos_1 = observePotentialRhoPos_1 + torch.unsqueeze(
-        torch.sum(d_line * (M_rho * out_element).div(observeRhoDifCoordPos_1_dis), 0), 1)
-    observePotentialRhoPos_1 = observePotentialRhoPos_1 - torch.unsqueeze(
-        torch.sum(d_line * (M_rho * inner_element).div(observeRhoDifCoordPos_1_dis), 0), 1)
-
-    # Integral on RhoDifNeg_1 grid
-    # Surface integral (volume integral reduces to surface integral in 2D)
-    observePotentialRhoNeg_1 = -torch.unsqueeze(
-        torch.sum(d_surface * sum_difs.div(observeRhoDifCoordNeg_1_dis), 0), 1)
-    # Line integral
-    observePotentialRhoNeg_1 = observePotentialRhoNeg_1 + torch.unsqueeze(
-        torch.sum(d_line * (M_rho * out_element).div(observeRhoDifCoordNeg_1_dis), 0), 1)
-    observePotentialRhoNeg_1 = observePotentialRhoNeg_1 - torch.unsqueeze(
-        torch.sum(d_line * (M_rho * inner_element).div(observeRhoDifCoordNeg_1_dis), 0), 1)
-
-    # Integral on ThetaDif_1 grid
-    # Surface integral (volume integral reduces to surface integral in 2D)
-    observePotentialTheta_1 = -torch.unsqueeze(
-        torch.sum(d_surface * sum_difs.div(observeThetaDifCoord_1_dis), 0), 1)
-    # Surface integral
-    observePotentialTheta_1 = observePotentialTheta_1 + torch.unsqueeze(
-        torch.sum(d_line * (M_rho * out_element).div(observeThetaDifCoord_1_dis), 0), 1)
-    observePotentialTheta_1 = observePotentialTheta_1 - torch.unsqueeze(
-        torch.sum(d_line * (M_rho * inner_element).div(observeThetaDifCoord_1_dis), 0), 1)
-    # endregion
-
-    # obtain H at observation locations
-    observePotentialRho_Pos_1_2D = torch.reshape(observePotentialRhoPos_1 / (4 * torch.pi), (num_grid, -1))
-    observePotentialRho_Neg_1_2D = torch.reshape(observePotentialRhoNeg_1 / (4 * torch.pi), (num_grid, -1))
-    observePotentialTheta_1_2D = torch.reshape(observePotentialTheta_1 / (4 * torch.pi), ((num_grid + 1), -1))
-
-    observeHTheta_1_2D = -(1 / (obs_rhoRhoPos - delta_h_rho / 2)).T * torch.diff(observePotentialTheta_1_2D,
-                                                                                 dim=0) / delta_h_theta  # Hy
-    observeHRho_1_2D = -(observePotentialRho_Pos_1_2D - observePotentialRho_Neg_1_2D) / delta_h_rho  # Hz
-
-    observeHRho_1 = torch.reshape(observeHRho_1_2D, (num_grid * 1, -1))
-    observeHTheta_1 = torch.reshape(observeHTheta_1_2D, (num_grid * 1, -1))
-
-    # combining all observations
-    observeH_1_sim = torch.cat([observeHRho_1, observeHTheta_1], dim=1)
-
-    # residual = torch.norm((observeH_sim - H_mimic), p=2, dim=1, keepdim=True)
-    true_value = H_observe / M_star
-    residual_analytical = observeH_1_sim - true_value
-
-    # considering adding a regularization loss
-    M_desired_rho = torch.zeros_like(M_rho)
-    totalElement = totalSurfaceElement + totalLineElement
-
-    for idx in range(totalElement):
-        if idx < totalElement / 2:
-            M_desired_rho[idx] = (1e6 / M_star)
-        else:
-            M_desired_rho[idx] = -(1e6 / M_star)
-
-    M_desired_theta = torch.zeros_like(M_theta)
-    delta_M_rho = M_rho - M_desired_rho
-    delta_M_theta = M_theta - M_desired_theta
-    residual_M = torch.concatenate([delta_M_rho, delta_M_theta], dim=1)
+    ### Hidden codes, contact the author to unlock ###
 
     return [residual_analytical, residual_M]
 
 
 def pde_predict(x, y):
-    # M_rho --> y[:, 0], M_theta --> y[:, 1]
-    # rho --> x[:, 0], theta --> x[:, 1]
-    # use external parameters directly! like: test = front_element[1]
-    M_rho = torch.unsqueeze(y[:, 0], 1)
-    M_theta = torch.unsqueeze(y[:, 1], 1)
-    dMrdr = dde.grad.jacobian(y, x, i=0, j=0)
-    dMtdt = dde.grad.jacobian(y, x, i=1, j=1)
-
-    # test
-    # dMrdr = torch.zeros_like(dMrdr)
-    # dMtdt = torch.zeros_like(dMtdt)
-    # M_theta = torch.zeros_like(M_theta)
-    # M_rho = torch.ones_like(M_rho)
-
-    sum_difs = ((1 / x[:, 0:1]) * M_rho + dMrdr + (
-                1 / x[:, 0:1]) * dMtdt) * surface_element  # for convenience of volume integral
-
-    # region Integrals
-    # Integral on RhoDifPos_1 grid
-    # Surface integral (volume integral reduces to surface integral in 2D)
-    observePotentialRhoPos_1 = -torch.unsqueeze(
-        torch.sum(d_surface * sum_difs.div(observeRhoDifCoordPos_1_dis), 0), 1)
-    # Line integral    ### problem here
-    observePotentialRhoPos_1 = observePotentialRhoPos_1 + torch.unsqueeze(
-        torch.sum(d_line * (M_rho * out_element).div(observeRhoDifCoordPos_1_dis), 0), 1)
-    observePotentialRhoPos_1 = observePotentialRhoPos_1 - torch.unsqueeze(
-        torch.sum(d_line * (M_rho * inner_element).div(observeRhoDifCoordPos_1_dis), 0), 1)
-
-    # Integral on RhoDifNeg_1 grid
-    # Surface integral (volume integral reduces to surface integral in 2D)
-    observePotentialRhoNeg_1 = -torch.unsqueeze(
-        torch.sum(d_surface * sum_difs.div(observeRhoDifCoordNeg_1_dis), 0), 1)
-    # Line integral
-    observePotentialRhoNeg_1 = observePotentialRhoNeg_1 + torch.unsqueeze(
-        torch.sum(d_line * (M_rho * out_element).div(observeRhoDifCoordNeg_1_dis), 0), 1)
-    observePotentialRhoNeg_1 = observePotentialRhoNeg_1 - torch.unsqueeze(
-        torch.sum(d_line * (M_rho * inner_element).div(observeRhoDifCoordNeg_1_dis), 0), 1)
-
-    # Integral on ThetaDif_1 grid
-    # Surface integral (volume integral reduces to surface integral in 2D)
-    observePotentialTheta_1 = -torch.unsqueeze(
-        torch.sum(d_surface * sum_difs.div(observeThetaDifCoord_1_dis), 0), 1)
-    # Surface integral
-    observePotentialTheta_1 = observePotentialTheta_1 + torch.unsqueeze(
-        torch.sum(d_line * (M_rho * out_element).div(observeThetaDifCoord_1_dis), 0), 1)
-    observePotentialTheta_1 = observePotentialTheta_1 - torch.unsqueeze(
-        torch.sum(d_line * (M_rho * inner_element).div(observeThetaDifCoord_1_dis), 0), 1)
-    # endregion
-
-    # obtain H at observation locations
-    observePotentialRho_Pos_1_2D = torch.reshape(observePotentialRhoPos_1 / (4 * torch.pi), (num_grid, -1))
-    observePotentialRho_Neg_1_2D = torch.reshape(observePotentialRhoNeg_1 / (4 * torch.pi), (num_grid, -1))
-    observePotentialTheta_1_2D = torch.reshape(observePotentialTheta_1 / (4 * torch.pi), ((num_grid + 1), -1))
-
-    observeHTheta_1_2D = -(1 / (obs_rhoRhoPos - delta_h_rho / 2)).T * torch.diff(observePotentialTheta_1_2D,
-                                                                                 dim=0) / delta_h_theta  # Hy
-    observeHRho_1_2D = -(observePotentialRho_Pos_1_2D - observePotentialRho_Neg_1_2D) / delta_h_rho  # Hz
-
-    observeHRho_1 = torch.reshape(observeHRho_1_2D, (num_grid * 1, -1))
-    observeHTheta_1 = torch.reshape(observeHTheta_1_2D, (num_grid * 1, -1))
-
-    # combining all observations
-    observeH_sim = M_star * torch.cat([observeHRho_1, observeHTheta_1], dim=1)
+    ### Hidden codes, contact the author to unlock ###
 
     return observeH_sim
 
@@ -490,3 +347,4 @@ ax.set_ylabel(r"H_rho")
 ax2.set_ylabel(r"H_theta")
 
 plt.show()
+
